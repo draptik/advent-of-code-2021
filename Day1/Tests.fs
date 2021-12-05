@@ -4,7 +4,7 @@ open System
 open Xunit
 
 [<Literal>]
-let input = "../../../../input.txt"
+let input = "../../../input.txt"
 
 [<Fact>]
 let ``input has 2000 lines`` () =
