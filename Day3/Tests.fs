@@ -123,7 +123,7 @@ let ``Experiments - strings to matrix 2`` () =
     Assert.True(true)
 
 [<Fact>]
-let ``day 3 should work`` () =
+let ``day 3 - part 1 should work`` () =
     let width = inputData[0].Length // assume that all entries have the same length
     let height = inputData.Length
 
@@ -178,9 +178,9 @@ let ``day 3 should work`` () =
     let gammaRate = getGammaRate
     let epsilonRate = getEpsilonRate gammaRate
     let result = gammaRate * epsilonRate
-    printfn "gammaRate: %A" gammaRate
-    printfn "epsilonRate: %A" epsilonRate
-    printfn "result: %A" result
+    // printfn "gammaRate: %A" gammaRate
+    // printfn "epsilonRate: %A" epsilonRate
+    // printfn "result: %A" result
 
     let expectedGammaRate = 2663
     Assert.Equal(expectedGammaRate, gammaRate)
@@ -190,4 +190,71 @@ let ``day 3 should work`` () =
 
     let expectedResult = 3813416
     Assert.Equal(expectedResult, result)
+
+(* Part 1 refactored ============================================================================ *)
+
+let toBoolRow (s: string) : bool list = s |> Seq.toList |> List.map (fun c -> c = '1')
+
+let toBoolRows (rawInputs:string list) : bool list list = rawInputs |> List.map toBoolRow
+
+let initMatrix (height:int) (width:int) (boolRows:bool list list) = Array2D.init height width (fun i j -> boolRows[i][j])
+
+let toDecimal (bs:bool list) =
+    let s =
+        bs 
+        |> List.map (fun b -> if b then "1" else "0")
+        |> String.concat ""
+    Convert.ToInt32(s, 2)
+
+let getMostCommonValueForColumn (m:bool[,]) (columnIndex:int) : bool =
+    let column = m.[*,columnIndex]
+    let numberOfTrueValuesInColumn = column |> Array.filter (fun b -> b) |> Array.length
+    let numberOfFalseValuesInColumn = (column |> Array.length) - numberOfTrueValuesInColumn
+    let mostCommonValue = numberOfTrueValuesInColumn >= numberOfFalseValuesInColumn
+    mostCommonValue
+
+let getGammaRate (matrix:bool[,]) =
+    let width = matrix |> Array2D.length2
+    [0..(width - 1)]
+    |> List.map (fun columnIndex -> getMostCommonValueForColumn matrix columnIndex)
+    |> toDecimal
+
+let rec intToBinary i =
+    match i with
+    | 0 | 1 -> string i
+    | _ ->
+        let bit = string (i % 2)
+        (intToBinary (i / 2)) + bit
+
+let invertBinaryString (binaryString:string) =
+    binaryString
+        .Replace("0", "*")
+        .Replace("1", "0")
+        .Replace("*", "1")
+
+(* we know that epsilon is the binary inversion of gamma *)
+let getEpsilonRate gammaRate =
+    let invertedBinaryString = gammaRate |> intToBinary |> invertBinaryString
+    Convert.ToInt32(invertedBinaryString, 2)
+
+[<Fact>]
+let ``day 3 - part 1 refactored`` () =
+    let width = inputData[0].Length // assume that all entries have the same length
+    let height = inputData.Length
+
+    let boolRows = toBoolRows inputData
+    let matrix = Array2D.init height width (fun i j -> boolRows[i][j])
+
+    let gammaRate = getGammaRate matrix
+    let expectedGammaRate = 2663
+    Assert.Equal(expectedGammaRate, gammaRate)
     
+    let epsilonRate = getEpsilonRate gammaRate
+    let expectedEpsilonRate = 1432
+    Assert.Equal(expectedEpsilonRate, epsilonRate)
+
+    let result = gammaRate * epsilonRate
+    let expectedResult = 3813416
+    Assert.Equal(expectedResult, result)
+    Assert.True(true)
+        
