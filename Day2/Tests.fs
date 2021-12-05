@@ -7,9 +7,9 @@ open Xunit
 let input = "../../../input.txt"
 let inputData = System.IO.File.ReadAllLines(input) |> Array.toList
 
-type Position = {Depth: int; Horizontal: int}
+type Position = {Depth: int; Horizontal: int; Aim: int}
 
-let initPosition = {Depth = 0; Horizontal = 0}
+let initPosition = {Depth = 0; Horizontal = 0; Aim = 0}
 
 let getPosition (position:Position) =
     (position.Horizontal, position.Depth)
@@ -43,20 +43,20 @@ let move command position =
     | Forward distance ->
         let newPosition =
             if position.Horizontal + distance >= 0
-            then {Depth = position.Depth; Horizontal = position.Horizontal + distance}
-            else {Depth = position.Depth; Horizontal = position.Horizontal - distance}
+            then {position with Depth = position.Depth + distance * position.Aim; Horizontal = position.Horizontal + distance}
+            else {position with Depth = position.Depth + distance * position.Aim; Horizontal = position.Horizontal - distance}
         newPosition
     | Down distance ->
         let newPosition =
             if position.Depth + distance >= 0
-            then {Depth = position.Depth + distance; Horizontal = position.Horizontal}
-            else {Depth = position.Depth - distance; Horizontal = position.Horizontal}
+            then {position with Aim = position.Aim + distance}
+            else {position with Aim = position.Aim - distance}
         newPosition
     | Up distance ->
         let newPosition =
             if position.Depth - distance >= 0
-            then {Depth = position.Depth - distance; Horizontal = position.Horizontal}
-            else {Depth = position.Depth + distance; Horizontal = position.Horizontal}
+            then {position with Aim = position.Aim - distance}
+            else {position with Aim = position.Aim + distance}
         newPosition
     | Invalid _ -> position
 
@@ -83,10 +83,10 @@ let ``use demo data`` () =
         |> List.map toCommand
         |> List.fold (fun acc command -> move command acc) initPosition
 
-    let expectedPosition = {Depth = 10; Horizontal = 15} |> getPosition
+    let expectedPosition = {Depth = 60; Horizontal = 15; Aim = 0} |> getPosition
     let actualPosition = getPosition actual
 
-    let expectedMultiplied = 150
+    let expectedMultiplied = 900
     let actualMultiplied = getMultiplyResult actual
     Assert.Equal(expectedPosition, actualPosition)
     Assert.Equal(expectedMultiplied, actualMultiplied)
@@ -98,10 +98,10 @@ let ``day 2 works`` () =
         |> List.map toCommand
         |> List.fold (fun acc command -> move command acc) initPosition
 
-    let expectedPosition = {Depth = 911; Horizontal = 1991} |> getPosition
+    let expectedPosition = {Depth = 984716; Horizontal = 1991; Aim = 0} |> getPosition
     let actualPosition = getPosition actual
     Assert.Equal(expectedPosition, actualPosition)
     
-    let expectedMultiplied = 1813801
+    let expectedMultiplied = 1960569556
     let actualMultiplied = getMultiplyResult actual
     Assert.Equal(expectedMultiplied, actualMultiplied)
