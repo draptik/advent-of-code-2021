@@ -243,7 +243,7 @@ let ``day 3 - part 1 refactored`` () =
     let height = inputData.Length
 
     let boolRows = toBoolRows inputData
-    let matrix = Array2D.init height width (fun i j -> boolRows[i][j])
+    let matrix = initMatrix height width boolRows
 
     let gammaRate = getGammaRate matrix
     let expectedGammaRate = 2663
