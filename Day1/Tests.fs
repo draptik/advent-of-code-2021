@@ -55,3 +55,53 @@ let ``count increasing lines in input`` () =
     let expected = 1502
     let actual = countNumberOfIncreasingEntries samples
     Assert.Equal(expected, actual)
+
+
+[<Fact>]
+let ``try windowed function - works`` () =
+    let samples = 
+        [
+            199
+            200
+            208
+            210
+            200
+            207
+            240
+            269
+            260
+            263            
+        ]    
+    
+    let w = samples |> List.windowed 3
+    // debug
+    // w |> List.iter (fun window -> printfn "%A" window)
+    
+    let sums = w |> List.map (fun window -> window |> List.sum)
+    // debug
+    // sums |> List.iter (fun sum -> printfn "%i" sum)
+
+    let actual = countNumberOfIncreasingEntries sums
+    let expected = 5
+    Assert.Equal(expected, actual)
+
+let getWindowedSums windowSize samples =
+    let w = samples |> List.windowed windowSize
+    // debug
+    // w |> List.iter (fun window -> printfn "%A" window)
+    
+    let sums = w |> List.map (fun window -> window |> List.sum)
+    // debug
+    // sums |> List.iter (fun sum -> printfn "%i" sum)
+    sums
+
+[<Fact>]
+let ``day 1 - count windowed increasing sums`` () =
+    let samples = 
+        System.IO.File.ReadAllLines(input) 
+        |> Array.toList 
+        |> List.map int
+
+    let actual = samples |> getWindowedSums 3 |> countNumberOfIncreasingEntries
+    let expected = 1538
+    Assert.Equal(expected, actual)
