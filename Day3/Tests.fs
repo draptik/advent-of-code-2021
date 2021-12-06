@@ -24,7 +24,7 @@ let ``Experiments - strings to matrix`` () =
         "01010"
     ]
     
-    let width = demoInput[0].Length // assume that all entries have the same length
+    let width = demoInput.[0].Length // assume that all entries have the same length
     let height = demoInput.Length
     // printfn "width: %i, height: %i" width height
 
@@ -37,7 +37,7 @@ let ``Experiments - strings to matrix`` () =
     let boolRows = toBoolRows demoInput
     // printfn "boolRows: %A" boolRows
     
-    let matrix = Array2D.init height width (fun i j -> boolRows[i][j])
+    let matrix = Array2D.init height width (fun i j -> boolRows.[i].[j])
     // printfn "Matrix: %A" matrix
 
     let firstColumn = matrix.[*,0]
@@ -66,13 +66,13 @@ let ``Experiments - strings to matrix 2`` () =
         "01010"
     ]
     
-    let width = demoInput[0].Length // assume that all entries have the same length
+    let width = demoInput.[0].Length // assume that all entries have the same length
     let height = demoInput.Length
 
     let toBoolRow (s: string) : bool list = s |> Seq.toList |> List.map (fun c -> c = '1')
     let toBoolRows rawInputs = rawInputs |> List.map toBoolRow
     let boolRows = toBoolRows demoInput
-    let matrix = Array2D.init height width (fun i j -> boolRows[i][j])
+    let matrix = Array2D.init height width (fun i j -> boolRows.[i].[j])
 
     let getMostCommonValueForColumn (m:bool[,]) (columnIndex:int) : bool =
         let column = m.[*,columnIndex]
@@ -124,13 +124,13 @@ let ``Experiments - strings to matrix 2`` () =
 
 [<Fact>]
 let ``day 3 - part 1 should work`` () =
-    let width = inputData[0].Length // assume that all entries have the same length
+    let width = inputData.[0].Length // assume that all entries have the same length
     let height = inputData.Length
 
     let toBoolRow (s: string) : bool list = s |> Seq.toList |> List.map (fun c -> c = '1')
     let toBoolRows rawInputs = rawInputs |> List.map toBoolRow
     let boolRows = toBoolRows inputData
-    let matrix = Array2D.init height width (fun i j -> boolRows[i][j])
+    let matrix = Array2D.init height width (fun i j -> boolRows.[i].[j])
 
     let getMostCommonValueForColumn (m:bool[,]) (columnIndex:int) : bool =
         let column = m.[*,columnIndex]
@@ -197,7 +197,7 @@ let toBoolRow (s: string) : bool list = s |> Seq.toList |> List.map (fun c -> c 
 
 let toBoolRows (rawInputs:string list) : bool list list = rawInputs |> List.map toBoolRow
 
-let initMatrix (height:int) (width:int) (boolRows:bool list list) = Array2D.init height width (fun i j -> boolRows[i][j])
+let initMatrix (height:int) (width:int) (boolRows:bool list list) = Array2D.init height width (fun i j -> boolRows.[i].[j])
 
 let toDecimal (bs:bool list) =
     let s =
@@ -239,7 +239,7 @@ let getEpsilonRate gammaRate =
 
 [<Fact>]
 let ``day 3 - part 1 refactored`` () =
-    let width = inputData[0].Length // assume that all entries have the same length
+    let width = inputData.[0].Length // assume that all entries have the same length
     let height = inputData.Length
 
     let boolRows = toBoolRows inputData
