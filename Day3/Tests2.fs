@@ -107,13 +107,56 @@ type C02ScrubberRating = Bits
 
 let getLeastCommonValue (bits: ColumnBits) : Bit =
     bits |> getMostCommonValue |> invertBit
+
+type Index = int
+
+let extractBitFromIndexedBit (_, bit) = bit
+let extractIndexFromIndexedBit (index, _) = index
+let isBit bitToFilterBy indexedBit = (indexedBit |> extractBitFromIndexedBit) = bitToFilterBy
+let getIndexedBitsByFilterBit bitToFilterBy indexedBits = indexedBits |> Seq.indexed |> Seq.filter (isBit bitToFilterBy)
+let containsIndices indicesToFilterBy indexedBit = (indexedBit |> extractIndexFromIndexedBit) = indicesToFilterBy
+let getIndexedBitsByIndices indices indexedBits = indexedBits |> Seq.indexed |> Seq.filter (containsIndices indices)
+
+let getMostCommonValueWithIndices (bits: ColumnBits) : Bit * Index seq =
+    let onesWithIndices = bits |> getIndexedBitsByFilterBit One
+    let zerosWithIndices = bits |> getIndexedBitsByFilterBit Zero
+    if (Seq.length onesWithIndices) >= (Seq.length zerosWithIndices) then
+        One, (onesWithIndices |> Seq.map extractIndexFromIndexedBit)
+    else
+        Zero, (zerosWithIndices |> Seq.map extractIndexFromIndexedBit)
     
 let getOxygenGeneratorRating bss : OxygenGeneratorRating =
-    // TODO We need a recursive function here
-    let initialColumnFirstBit = getMostCommonValue  
-    
-    [One; Zero; One; One; One] |> Seq.ofList
+    let columns = [0..(getBitsWidth bss)-1] |> List.map (toBitsColumn bss)
+    let firstColumnWithMostCommonValueWithIndices = columns |> List.head |> getMostCommonValueWithIndices
+    // Result might look like (One, [2;3;4])
+    // This means that One is the first part of the final answer (we have to store the info, but we don't need it for further analysis),
+    // and we must pick entries 2, 3, and 4 from the second column
+    // The data we have to pass when using fold/recursion might look like: (FinalBit list) * (ColumnBits list),
+    // where (ColumnBits list) should probably only contain the tail of the previous (ColumnBits list)...
+//    let secondColumnWithMostCommonValueWithIndices =
+//        let indicesForSecondColumn = firstColumnWithMostCommonValueWithIndices |> Seq.map extractIndexFromIndexedBit
+//        let secondColumnBits = columns.[1]
+//        let filteredSecondColumnBits = secondColumnBits |> Seq.filter (fun x -> getIndexedBitsByIndices indicesForSecondColumn x)
+//        0
 
+//    let initialColumnWithBits = firstColumnWithMostCommonValueWithIndices
+    
+    let rec getResults (bits: Bit seq, remainingColumns:ColumnBits seq) : Bit seq * ColumnBits seq =
+        if (remainingColumns |> Seq.length) = 0 then
+            (bits, remainingColumns)
+        else
+            let currentColumn = remainingColumns |> Seq.head
+            let nextRemainingColumns = remainingColumns |> Seq.tail
+            let currentResultBit,validIndicesForNext = currentColumn |> getMostCommonValueWithIndices
+            let nextRoundColumnsPre = remainingColumns |> Seq.indexed validIndicesForNext
+//            let foo = nextRoundColumnsPre |> Seq.filter (fun i,elem  ->
+//                if elem 
+//                )
+        getResults (bits, foo)
+        
+    // TODO We need a recursive function here
+    [One]
+    
 let getCO2ScrubberRating bss : C02ScrubberRating =
     // TODO 01010
     [Zero; One; Zero; One; Zero] |> Seq.ofList
