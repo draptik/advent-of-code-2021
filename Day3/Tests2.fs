@@ -128,18 +128,6 @@ let getMostCommonValueWithIndices (bits: ColumnBits) : Bit * Index seq =
 let getOxygenGeneratorRating bss : OxygenGeneratorRating =
     let columns = [0..(getBitsWidth bss)-1] |> List.map (toBitsColumn bss)
     let firstColumnWithMostCommonValueWithIndices = columns |> List.head |> getMostCommonValueWithIndices
-    // Result might look like (One, [2;3;4])
-    // This means that One is the first part of the final answer (we have to store the info, but we don't need it for further analysis),
-    // and we must pick entries 2, 3, and 4 from the second column
-    // The data we have to pass when using fold/recursion might look like: (FinalBit list) * (ColumnBits list),
-    // where (ColumnBits list) should probably only contain the tail of the previous (ColumnBits list)...
-//    let secondColumnWithMostCommonValueWithIndices =
-//        let indicesForSecondColumn = firstColumnWithMostCommonValueWithIndices |> Seq.map extractIndexFromIndexedBit
-//        let secondColumnBits = columns.[1]
-//        let filteredSecondColumnBits = secondColumnBits |> Seq.filter (fun x -> getIndexedBitsByIndices indicesForSecondColumn x)
-//        0
-
-//    let initialColumnWithBits = firstColumnWithMostCommonValueWithIndices
     
     let rec getResults (bits: Bit seq, remainingColumns:ColumnBits seq) : Bit seq * ColumnBits seq =
         if (remainingColumns |> Seq.length) = 0 then
