@@ -124,23 +124,44 @@ let getMostCommonValueWithIndices (bits: ColumnBits) : Bit * Index seq =
         One, (onesWithIndices |> Seq.map extractIndexFromIndexedBit)
     else
         Zero, (zerosWithIndices |> Seq.map extractIndexFromIndexedBit)
+
+//let getBitsByIndex (bits: Bit seq) (indices: Index seq) : Bit seq =
+//    bits
+    
     
 let getOxygenGeneratorRating bss : OxygenGeneratorRating =
     let columns = [0..(getBitsWidth bss)-1] |> List.map (toBitsColumn bss)
-    let firstColumnWithMostCommonValueWithIndices = columns |> List.head |> getMostCommonValueWithIndices
+
+    let getIndicesByFunc f (column:ColumnBits) : Index seq =
+        column |> Seq.indexed |> Seq.filter (fun (i,x) -> f x) |> Seq.map fst
     
-    let rec getResults (bits: Bit seq, remainingColumns:ColumnBits seq) : Bit seq * ColumnBits seq =
-        if (remainingColumns |> Seq.length) = 0 then
-            (bits, remainingColumns)
-        else
-            let currentColumn = remainingColumns |> Seq.head
-            let nextRemainingColumns = remainingColumns |> Seq.tail
-            let currentResultBit,validIndicesForNext = currentColumn |> getMostCommonValueWithIndices
-            let nextRoundColumnsPre = remainingColumns |> Seq.indexed validIndicesForNext
-//            let foo = nextRoundColumnsPre |> Seq.filter (fun i,elem  ->
-//                if elem 
-//                )
-        getResults (bits, foo)
+    let getRemainingColumn (indices:Index seq) (column: ColumnBits) : Bits=
+        column |> Seq.indexed |> Seq.filter (fun (i,x) -> Seq.contains i indices) |> Seq.map snd
+    
+//    let rec getRemainingColumns f (bits: Bit seq) (remainingColumns:ColumnBits list) : Bits =
+//        match remainingColumns with
+//        | [] -> bits
+//        | head::tail ->
+//            let remainingCols =
+//                let indices = head |> getIndicesByFunc f
+//                tail |> List.map (getRemainingColumn indices)
+//            getRemainingColumns f bits remainingCols
+//    let actual = getRemainingColumns f columns
+//    actual
+//            
+//        if (remainingColumns |> Seq.length) = 0 then
+//            (bits, remainingColumns)
+//        else
+//            let currentColumn = remainingColumns |> Seq.head
+//            let nextRemainingColumns = remainingColumns |> Seq.tail
+//            let currentResultBit,validIndicesForNext = currentColumn |> getMostCommonValueWithIndices
+//            // based on validIndicesForNext and the nextRemainingColumns: TOOD
+//             
+//            let nextRoundColumnsPre = remainingColumns |> Seq.indexed validIndicesForNext
+////            let foo = nextRoundColumnsPre |> Seq.filter (fun i,elem  ->
+////                if elem 
+////                )
+//        getResults (bits, foo)
         
     // TODO We need a recursive function here
     [One]
@@ -149,14 +170,51 @@ let getCO2ScrubberRating bss : C02ScrubberRating =
     // TODO 01010
     [Zero; One; Zero; One; Zero] |> Seq.ofList
     
+//[<Fact>]
+//let ``day 3 - part 2 experiments`` () =
+//    let allData = rawDemo |> List.map toBits
+//    
+//    let oxygenGeneratorRating = getOxygenGeneratorRating allData
+//    let expectedOxygenGeneratorRating = 23
+//    (oxygenGeneratorRating |> toDecimal) =! expectedOxygenGeneratorRating
+//    
+//    let co2ScrubberRating = getCO2ScrubberRating allData
+//    let expectedCO2ScrubberRating = 10
+//    (co2ScrubberRating |> toDecimal) =! expectedCO2ScrubberRating
+    
 [<Fact>]
-let ``day 3 - part 2 experiments`` () =
-    let allData = rawDemo |> List.map toBits
+let ``playground`` () =
+    let column1 = [1;2;3;4;5]
+    let column2 = [10;20;30;40;50]
+    let column3 = [100;200;300;400;500]
+    let allColumns = [column1;column2;column3]
+    let f x = x % 2 = 0
     
-    let oxygenGeneratorRating = getOxygenGeneratorRating allData
-    let expectedOxygenGeneratorRating = 23
-    (oxygenGeneratorRating |> toDecimal) =! expectedOxygenGeneratorRating
+    // step1: get all indices of 1st column which conform to function f
+    let indices1 = column1 |> List.indexed |> List.filter (fun (i,x) -> f x) |> List.map fst
     
-    let co2ScrubberRating = getCO2ScrubberRating allData
-    let expectedCO2ScrubberRating = 10
-    (co2ScrubberRating |> toDecimal) =! expectedCO2ScrubberRating
+    // step2: get entries from column2 at indices
+    let reducedCol2 = column2 |> List.indexed |> List.filter (fun (i,x) -> List.contains i indices1) |> List.map snd
+    let indices2 = reducedCol2 |> List.indexed |> List.filter (fun (i,x) -> f x) |> List.map fst
+    
+    //step3: apply to allColumns
+    let getIndicesByFunc f column : int list =
+        column |> List.indexed |> List.filter (fun (i,x) -> f x) |> List.map fst
+        
+    let getRemainingColumn indices column : int list =
+        column |> List.indexed |> List.filter (fun (i,x) -> List.contains i indices) |> List.map snd
+    
+    let rec getRemainingColumns f (columns : int list list) : int list =
+        match columns with
+        | [] -> []
+        | head::tail ->
+            if List.length tail = 0 then
+                head
+            else
+                let remainingCols =
+                    let indices = head |> getIndicesByFunc f
+                    tail |> List.map (getRemainingColumn indices)
+                getRemainingColumns f remainingCols
+    
+    let actual = getRemainingColumns f allColumns
+    actual =! [200;400]
