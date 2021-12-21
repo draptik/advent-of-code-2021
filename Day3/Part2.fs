@@ -124,6 +124,7 @@ let ``co2 scrubber rating`` () =
     let actual = calcAll getLeastCommonValueWithIndices columns
     actual =! [Zero; One; Zero; One; Zero]
     (toDecimal actual) =! 10
+
     
 [<Fact>]
 let ``get all Elements by index from columns`` () =
@@ -145,3 +146,23 @@ let ``appendBit works`` () =
     let list = [One; Zero; Zero]
     let newElement = One
     (appendBit list newElement) =! [One;Zero;Zero;One]
+    
+
+[<Literal>]
+let input = "../../../input.txt"
+let inputData = System.IO.File.ReadAllLines(input) |> Array.toList
+
+[<Fact>]
+let ``final check`` () =
+    let columns = convertToColumns inputData
+    
+    let co2ScrubberRatingBits = calcAll getLeastCommonValueWithIndices columns
+    let co2ScrubberRating = co2ScrubberRatingBits |> toDecimal
+    
+    let oxygenGeneratorRatingBits = calcAll getMostCommonValueWithIndices columns
+    let oxygenGeneratorRating = oxygenGeneratorRatingBits |> toDecimal
+    
+    let actual = oxygenGeneratorRating * co2ScrubberRating
+    
+    actual =! 42
+    
