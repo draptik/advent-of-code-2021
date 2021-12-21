@@ -22,17 +22,16 @@ let sampleData = [
 (* Types and helper ================================================================================================= *)
 type Bit = Zero | One
 type Bits = Bit list
-type RowBits = Bits
 type ColumnBits = Bits
-type GammaRate = Bits
-type EpsilonRate = Bits
 type Index = int
 
 let toBit (c:char) : Bit =
     if c = '1' then One
     else Zero
+
 let toBits (s:string) : Bits =
     s |> Seq.map toBit |> List.ofSeq
+
 let toDecimal (bits: Bits) : int =
     let toString bit =
         match bit with
@@ -46,28 +45,38 @@ let toDecimal (bits: Bits) : int =
     |> String.concat ""
     |> toDec
 
-(* ===========================*)
 let extractBitFromIndexedBit (_, bit) = bit
 let extractIndexFromIndexedBit (index, _) = index
-let isBit bitToFilterBy indexedBit = (indexedBit |> extractBitFromIndexedBit) = bitToFilterBy
-let getIndexedBitsByFilterBit bitToFilterBy indexedBits = indexedBits |> List.indexed |> List.filter (isBit bitToFilterBy)
-let containsIndices indicesToFilterBy indexedBit = (indexedBit |> extractIndexFromIndexedBit) = indicesToFilterBy
-let getIndexedBitsByIndices indices indexedBits = indexedBits |> List.indexed |> List.filter (containsIndices indices)
 
-// Example:
-// input:  [One; One; Zero]
-// output: (One, [0; 1])
-let getMostCommonValueWithIndices (bits: ColumnBits) : Bit * Index list =
+let isBit bitToFilterBy indexedBit =
+    (indexedBit |> extractBitFromIndexedBit) = bitToFilterBy
+
+let getIndexedBitsByFilterBit bitToFilterBy indexedBits =
+    indexedBits |> List.indexed |> List.filter (isBit bitToFilterBy)
+
+(* Logic =============================================================================================================*)
+type IndexedBit = Index * Bit
+type Ones = IndexedBit list
+type Zeros = IndexedBit list
+type IndexedBits =
+    | Ones
+    | Zeros
+type IndexedBitBag = Ones * Zeros
+
+let getOnesAndZerosWithIndices (bits: ColumnBits) : IndexedBitBag =
     let onesWithIndices = bits |> getIndexedBitsByFilterBit One
     let zerosWithIndices = bits |> getIndexedBitsByFilterBit Zero
+    onesWithIndices, zerosWithIndices
+
+let getMostCommonValueWithIndices (bits: ColumnBits) : Bit * Index list =
+    let onesWithIndices, zerosWithIndices = bits |> getOnesAndZerosWithIndices
     if (List.length onesWithIndices) >= (List.length zerosWithIndices) then
         One, (onesWithIndices |> List.map extractIndexFromIndexedBit)
     else
         Zero, (zerosWithIndices |> List.map extractIndexFromIndexedBit)
 
 let getLeastCommonValueWithIndices (bits: ColumnBits) : Bit * Index list =
-    let onesWithIndices = bits |> getIndexedBitsByFilterBit One
-    let zerosWithIndices = bits |> getIndexedBitsByFilterBit Zero
+    let onesWithIndices, zerosWithIndices = bits |> getOnesAndZerosWithIndices
     if (List.length onesWithIndices) >= (List.length zerosWithIndices) then
         Zero, (zerosWithIndices |> List.map extractIndexFromIndexedBit)
     else
@@ -78,6 +87,9 @@ let getRemainingColumn (indices:Index list) (column:Bit list) : ColumnBits =
 
 let appendBit bits bit : Bit list =
     bit :: (bits |> List.rev) |> List.rev
+
+let getFirstBitFromColumns (cols:ColumnBits list) =
+    cols |> List.map (fun c -> c |> List.head)
     
 let calcAll f allColumns =
     
@@ -91,10 +103,8 @@ let calcAll f allColumns =
             let (remainingColumns : ColumnBits list) = tail |> List.map (getRemainingColumn indices)
             
             if (List.length indices) = 1 then
-                let getColumnBitByIndex (cols:ColumnBits list) (index:Index) =
-                    cols |> List.map (fun c -> c.[index])
-                let remainingBits = getColumnBitByIndex remainingColumns 0
-                newBits @ remainingBits 
+                let finalRemainingBits = getFirstBitFromColumns remainingColumns
+                newBits @ finalRemainingBits 
             else
                 calcRecursive newBits remainingColumns
     
@@ -125,34 +135,17 @@ let ``co2 scrubber rating`` () =
     actual =! [Zero; One; Zero; One; Zero]
     (toDecimal actual) =! 10
 
-    
-[<Fact>]
-let ``get all Elements by index from columns`` () =
-    let columns = convertToColumns sampleData
-    let getColumnBitByIndex (cols:ColumnBits list) (index:Index) =
-        cols |> List.map (fun c -> c.[index])
-    let result = getColumnBitByIndex columns 0
-    result =! [Zero;Zero;One;Zero;Zero]
-    
-[<Fact>]
-let ``fsharp list stuff - add element to list``()=
-    let list = [1;2]
-    let list' = list |> List.rev
-    let newElement = 99
-    (newElement :: list') |> List.rev =! [1;2;99]
-
 [<Fact>]
 let ``appendBit works`` () =
     let list = [One; Zero; Zero]
     let newElement = One
     (appendBit list newElement) =! [One;Zero;Zero;One]
-    
 
 [<Literal>]
 let input = "../../../input.txt"
 let inputData = System.IO.File.ReadAllLines(input) |> Array.toList
 
-[<Fact>]
+[<Fact(Skip = "not the correct answer - no spoilers")>]
 let ``final check`` () =
     let columns = convertToColumns inputData
     
