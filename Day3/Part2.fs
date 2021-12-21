@@ -76,31 +76,27 @@ let getLeastCommonValueWithIndices (bits: ColumnBits) : Bit * Index list =
 let getRemainingColumn (indices:Index list) (column:Bit list) : ColumnBits =
     column |> List.indexed |> List.filter (fun (i,x) -> List.contains i indices) |> List.map snd
 
+let appendBit bits bit : Bit list =
+    bit :: (bits |> List.rev) |> List.rev
+    
 let calcAll f allColumns =
     
-    let rec calcRecursive (resultBits: Bit list) (columns:ColumnBits list) =
+    let rec calcRecursive (resultBits: Bit list) (columns : ColumnBits list) : Bit list =
         match columns with
         | [] ->
             resultBits
         | head::tail ->
             let (value : Bit), (indices : Index list) = f head
-            let (newBits : Bit list) = value :: resultBits |> List.rev
+            let (newBits : Bit list) = appendBit resultBits value
             let (remainingColumns : ColumnBits list) = tail |> List.map (getRemainingColumn indices)
-//            if (List.length indices) = 1 then
-//                let index = indices |> List.head
-//                let remainingResultBits : Bit list =
-//                    
-//                    List.fold
-//                           (fun (acc : Bit list) (elem : Bit) ->
-//                                elem @ acc |> List.rev
-//                           ),
-//                           One,
-//                           remainingColumns
-//                    
-//                           
-//                newBits @ remainingResultBits
-//            else
-            calcRecursive newBits remainingColumns
+            
+            if (List.length indices) = 1 then
+                let getColumnBitByIndex (cols:ColumnBits list) (index:Index) =
+                    cols |> List.map (fun c -> c.[index])
+                let remainingBits = getColumnBitByIndex remainingColumns 0
+                newBits @ remainingBits 
+            else
+                calcRecursive newBits remainingColumns
     
     let initialBits = []
     let result = calcRecursive initialBits allColumns
@@ -127,4 +123,25 @@ let ``co2 scrubber rating`` () =
     let columns = convertToColumns sampleData
     let actual = calcAll getLeastCommonValueWithIndices columns
     actual =! [Zero; One; Zero; One; Zero]
-    (toDecimal actual) =! 10    
+    (toDecimal actual) =! 10
+    
+[<Fact>]
+let ``get all Elements by index from columns`` () =
+    let columns = convertToColumns sampleData
+    let getColumnBitByIndex (cols:ColumnBits list) (index:Index) =
+        cols |> List.map (fun c -> c.[index])
+    let result = getColumnBitByIndex columns 0
+    result =! [Zero;Zero;One;Zero;Zero]
+    
+[<Fact>]
+let ``fsharp list stuff - add element to list``()=
+    let list = [1;2]
+    let list' = list |> List.rev
+    let newElement = 99
+    (newElement :: list') |> List.rev =! [1;2;99]
+
+[<Fact>]
+let ``appendBit works`` () =
+    let list = [One; Zero; Zero]
+    let newElement = One
+    (appendBit list newElement) =! [One;Zero;Zero;One]
