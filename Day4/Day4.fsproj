@@ -8,8 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Content Include="input.txt" />
+        <Content Include="sample.txt" />
+        <Compile Include="Helper.fs" />
         <Compile Include="RawData.fs" />
-        <Compile Include="Tests.fs" />
+        <Compile Include="Part1Tests.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
