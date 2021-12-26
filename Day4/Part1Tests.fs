@@ -189,7 +189,34 @@ let ``import multiple boards`` () =
     let expectedNumberOfBoards = 3
     actual.Length =! expectedNumberOfBoards
     actual |> List.forall (fun x -> x.Length = 25) =! true
-    
+
+[<Fact>]
+let ``check getSumUnmarkedNumbers`` () =
+    let input =
+        [
+            { Position = (0,0); State = Marked; Value = 42 };
+            { Position = (0,0); State = NotMarked; Value = 2 };
+            { Position = (0,0); State = NotMarked; Value = 3 };
+            { Position = (0,0); State = NotMarked; Value = 4 };
+        ]
+    let expected = 9
+    let actual = getSumUnmarkedNumbers input
+    actual =! expected
+
+[<Fact>]
+let ``check getScore`` () =
+    let winningNumber = 4
+    let input =
+        [
+            { Position = (0,0); State = Marked; Value = 42 };
+            { Position = (0,0); State = NotMarked; Value = 2 };
+            { Position = (0,0); State = NotMarked; Value = 3 };
+            { Position = (0,0); State = NotMarked; Value = winningNumber };
+        ]
+    let expected = 9 * winningNumber
+    let actual = getScore input winningNumber
+    actual =! expected
+
 [<Fact>]
 let ``experiments`` () =
 //    let vals = [1..25]

@@ -11,6 +11,8 @@ type Cell = {
     Value: CellValue
 }
 type Board = Cell list
+type Score = int
+type UnmarkedSum = int
 
 let initToBoardRow rowIndex (row : int list) : Board =
     row
@@ -60,5 +62,11 @@ let hasBingo board =
     let anyColumnWithBingo = board |> bingoByFcn getCellColumn
     anyRowWithBingo || anyColumnWithBingo
         
-//let getScore board : Score =
+let getSumUnmarkedNumbers board : UnmarkedSum =
+    board
+    |> List.filter (fun cell -> cell.State = NotMarked)
+    |> List.sumBy (fun cell -> cell.Value)
     
+let getScore board winningDraw : Score =
+    let sumUnmarkedNumbers = getSumUnmarkedNumbers board
+    sumUnmarkedNumbers * winningDraw
