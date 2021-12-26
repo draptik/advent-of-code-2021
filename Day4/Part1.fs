@@ -70,3 +70,24 @@ let getSumUnmarkedNumbers board : UnmarkedSum =
 let getScore board winningDraw : Score =
     let sumUnmarkedNumbers = getSumUnmarkedNumbers board
     sumUnmarkedNumbers * winningDraw
+    
+let markBoards draw boards : Board list =
+    boards
+    |> List.map (markCellWithValue draw)
+
+let hasWinner boards =
+    boards
+    |> List.tryFind hasBingo
+
+let rec determineWinner boards currentDraw remainingDraws =
+    match hasWinner boards with
+    | Some board ->
+        Some (board, currentDraw)
+    | None ->
+        match remainingDraws with
+        | [] ->
+            None
+        | nextDraw::remainingDraws' ->
+            let markedBoards = markBoards nextDraw boards
+            determineWinner markedBoards nextDraw remainingDraws'
+                    

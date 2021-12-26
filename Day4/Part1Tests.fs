@@ -218,6 +218,19 @@ let ``check getScore`` () =
     actual =! expected
 
 [<Fact>]
+let ``part 1 - sample result`` () =
+    let maxRowsPerBoard = 5
+    let boards = remaining |> toIntRows |> toBoards maxRowsPerBoard
+                
+    let boardOpt = determineWinner boards draws.Head draws
+
+    match boardOpt with
+    | None -> 1 =! 0
+    | Some (b,n) ->
+        getSumUnmarkedNumbers b =! 188
+        getScore b n =! 4512
+
+[<Fact>]
 let ``experiments`` () =
 //    let vals = [1..25]
 //    let ar = Array2D.zeroCreate<int> 5 5

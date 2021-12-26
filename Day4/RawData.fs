@@ -3,6 +3,7 @@ module Day4.RawData
 open System
 
 [<Literal>]
+//let sample = "../../../input.txt"
 let sample = "../../../sample.txt"
 let inputData = System.IO.File.ReadAllLines(sample) |> Array.toList
 
