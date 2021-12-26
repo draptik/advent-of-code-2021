@@ -2,13 +2,20 @@ module Day4.Helper
 
 open System
 
-let toInt (s: string) =
-    s.Trim() |> int
+let toInt (s: string) = s.Trim() |> int
     
+let isEmpty (s : string) = String.IsNullOrWhiteSpace(s)
+let hasValue s = not (isEmpty s)
+
 let toIntRows (rows: string list) =
     rows
-    |> List.map (fun x ->
-        x.Split(' ')
-        |> List.ofArray
-        |> List.filter (fun x -> String.IsNullOrWhiteSpace(x) |> not)
-        |> List.map (fun s -> s |> toInt))    
+    |> List.map (fun row ->
+        match row with
+        | x when isEmpty x -> None
+        | x ->
+            x.Split(' ')
+            |> List.ofArray
+            |> List.filter hasValue
+            |> List.map toInt
+            |> Some)
+    |> List.choose id
