@@ -10,9 +10,9 @@ type Cell = {
     State: CellState
     Value: CellValue
 }
-type BingoCard = Cell list
+type Board = Cell list
 
-let initToBingoCardRow rowIndex (row : int list) : BingoCard =
+let initToBoardRow rowIndex (row : int list) : Board =
     row
     |> List.mapi (fun colIndex value ->
         {
@@ -21,18 +21,18 @@ let initToBingoCardRow rowIndex (row : int list) : BingoCard =
             Value = value
         })
     
-let toBingoCard (rows : int list list) : BingoCard =
+let toBoard (rows : int list list) : Board =
     let result =
         rows
-        |> List.mapi initToBingoCardRow
+        |> List.mapi initToBoardRow
         |> List.collect id
     result
 
-let toBingoCards maxRows (rows : int list list) : BingoCard list =
-    rows |> List.chunkBySize maxRows |> List.map toBingoCard
+let toBoards maxRows (rows : int list list) : Board list =
+    rows |> List.chunkBySize maxRows |> List.map toBoard
     
-let markCellWithValue (value : CellValue) (bingoCard : BingoCard) : BingoCard =
-    bingoCard
+let markCellWithValue (value : CellValue) (board : Board) : Board =
+    board
     |> List.map (fun cell ->
         if cell.Value = value then { cell with State = Marked }
         else cell)
@@ -49,15 +49,16 @@ let getCellColumn cell =
     let _, columnIndex = cell.Position
     columnIndex
     
-let hasBingo bingoCard =
+let hasBingo board =
     let bingoByFcn f cs =
         cs
         |> List.groupBy f
         |> List.map (fun (_, cells) -> areAllStatesMarked cells)
         |> List.exists (fun x -> x = true)
         
-    let anyRowWithBingo = bingoCard |> bingoByFcn getCellRow
-    let anyColumnWithBingo = bingoCard |> bingoByFcn getCellColumn
+    let anyRowWithBingo = board |> bingoByFcn getCellRow
+    let anyColumnWithBingo = board |> bingoByFcn getCellColumn
     anyRowWithBingo || anyColumnWithBingo
         
+//let getScore board : Score =
     

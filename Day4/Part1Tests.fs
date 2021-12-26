@@ -75,7 +75,7 @@ let ``check toIntRows (multiple entries with empty rows)`` () =
     actual =! expected
 
 [<Fact>]
-let ``check initToBingoCardRow`` () =
+let ``check initToBoardRow`` () =
     let rowIndex = 0
     let row = [13;42]
     let expected =
@@ -91,11 +91,11 @@ let ``check initToBingoCardRow`` () =
                 Value = 42
             }
         ]
-    let actual = row |> initToBingoCardRow rowIndex
+    let actual = row |> initToBoardRow rowIndex
     actual =! expected
     
 [<Fact>]
-let ``check toBingoCard`` () =
+let ``check toBoard`` () =
     let input =
         [
             "22 13";
@@ -121,7 +121,7 @@ let ``check toBingoCard`` () =
               Value = 2
             }
         ]
-    let actual = input |> toIntRows |> toBingoCard
+    let actual = input |> toIntRows |> toBoard
     actual =! expected
     
 [<Fact>]
@@ -134,11 +134,11 @@ let ``check markCellWithValue`` () =
             " 6 10  3 18  5";
             " 1 12 20 15 19"
         ]
-    let bingoCard = input |> toIntRows |> toBingoCard
-    let actual = bingoCard |> markCellWithValue 22
+    let board = input |> toIntRows |> toBoard
+    let actual = board |> markCellWithValue 22
     let firstCell = actual |> List.find (fun cell -> cell.Position = (0,0))
     
-    bingoCard |> areAllStatesUnmarked =! true
+    board |> areAllStatesUnmarked =! true
     firstCell.State =! Marked
     actual |> areAllStatesUnmarked =! false
 
@@ -152,8 +152,8 @@ let ``check hasBingo (row)`` () =
             " 6 10  3 18  5";
             " 1 12 20 15 19"
         ]
-    let bingoCard = input |> toIntRows |> toBingoCard
-    let actual = bingoCard
+    let board = input |> toIntRows |> toBoard
+    let actual = board
                  |> markCellWithValue 22
                  |> markCellWithValue 13
                  |> markCellWithValue 17
@@ -172,8 +172,8 @@ let ``check hasBingo (column)`` () =
             " 6 10  3 18  5";
             " 1 12 20 15 19"
         ]
-    let bingoCard = input |> toIntRows |> toBingoCard
-    let actual = bingoCard
+    let board = input |> toIntRows |> toBoard
+    let actual = board
                  |> markCellWithValue 22
                  |> markCellWithValue 8
                  |> markCellWithValue 21
@@ -183,11 +183,11 @@ let ``check hasBingo (column)`` () =
     actual =! true        
 
 [<Fact>]
-let ``import multiple bingo cards`` () =
+let ``import multiple boards`` () =
     let inputs = remaining
-    let actual = inputs |> toIntRows |> toBingoCards 5
-    let expectedNumberOfBingoCards = 3
-    actual.Length =! expectedNumberOfBingoCards
+    let actual = inputs |> toIntRows |> toBoards 5
+    let expectedNumberOfBoards = 3
+    actual.Length =! expectedNumberOfBoards
     actual |> List.forall (fun x -> x.Length = 25) =! true
     
 [<Fact>]
