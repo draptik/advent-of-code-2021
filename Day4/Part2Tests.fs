@@ -23,3 +23,7 @@ let ``part 2 -sample result`` () =
     | Some (b,n) ->
         getSumUnmarkedNumbers b =! 148
         getScore b n =! 1924
+
+[<Fact>]
+let ``experiments`` () =
+    [0..10] |> List.except [0..8] =! [9;10]
