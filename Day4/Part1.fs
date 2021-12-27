@@ -75,12 +75,12 @@ let markBoards draw boards : Board list =
     boards
     |> List.map (markCellWithValue draw)
 
-let hasWinner boards =
+let tryGetFirstWinner boards : Board option =
     boards
     |> List.tryFind hasBingo
 
 let rec determineWinner boards currentDraw remainingDraws =
-    match hasWinner boards with
+    match tryGetFirstWinner boards with
     | Some board ->
         Some (board, currentDraw)
     | None ->
