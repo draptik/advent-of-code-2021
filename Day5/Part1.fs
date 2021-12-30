@@ -20,6 +20,7 @@ type LineDefinition = {
 type OrientedLine =
     | Horizontal of LineDefinition
     | Vertical of LineDefinition
+    | Diagonal of LineDefinition
     | Other
 
 type NumberOfOverlaps = int
