@@ -12,17 +12,22 @@ type StartCoordinate = Coordinate
 type EndCoordinate = Coordinate
 type Coverage = Coordinate list
 
-type Line = {
+type LineDefinition = {
     Start: StartCoordinate
     End: EndCoordinate
 }
 
 type OrientedLine =
-    | Horizontal of Line
-    | Vertical of Line
+    | Horizontal of LineDefinition
+    | Vertical of LineDefinition
     | Other
 
-let rowToLine row : Line =
+type NumberOfOverlaps = int
+type Overlap =
+    | NoOverlap
+    | Overlaps of (Coordinate * NumberOfOverlaps) list
+    
+let rowToLine row : LineDefinition =
     let pattern = "^(?<x1>\d+),(?<y1>\d+) -> (?<x2>\d+),(?<y2>\d+)$"
     let matched = Regex.Match(row, pattern)
     
@@ -42,28 +47,46 @@ let getOrientedLine line =
     | _, y1, _, y2 when y1 = y2 -> Vertical line
     | _ -> Other
 
-let isValidLine line =
-    getOrientedLine line <> Other
-    
-let getValidLines lines =
-    lines |> List.filter isValidLine
-
 let getCoverage line : Coverage option =
+    let sort a b = if a < b then [a..b] else [b..a]
     match line with
     | Horizontal l ->
         let x1, y1 = l.Start 
         let _, y2 = l.End
         let result =
-            [y1..y2]
+            sort y1 y2 
             |> List.map (fun y -> x1,y)
         Some result    
     | Vertical l ->
         let x1, y1 = l.Start 
         let x2, _ = l.End
         let result =
-            [x1..x2]
+            sort x1 x2 
             |> List.map (fun x -> x,y1)
         Some result    
     | _ -> None
+
+let getOverlaps (coverages: Coverage option list) : Overlap =
+    let overlaps =
+        coverages
+        |> List.choose id
+        |> List.collect id
+        |> List.groupBy id
+        |> List.map (fun pair ->
+            let coord = fst pair
+            let count = snd pair |> List.length
+            if count > 1 then
+                Some (coord, count)
+            else
+                None
+            )
+        |> List.choose id
     
-    
+    match overlaps with
+    | [] -> NoOverlap
+    | xs -> Overlaps xs
+
+let countOverlaps overlaps =
+    match overlaps with
+    | NoOverlap -> 0
+    | Overlaps xs -> xs.Length
