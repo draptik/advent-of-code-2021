@@ -4,6 +4,7 @@ open System
 open Xunit
 open Swensen.Unquote
 
+open Day6.RawData
 open Day6.Part1
 
 [<Fact>]
@@ -21,7 +22,7 @@ let ``get states after 18 day`` () =
 
 [<Fact>]
 let ``get number of fishes after 80 days`` () =
-    let initialStates = [3;4;3;1;2]
+    let initialStates = rawInitialInternalTimers
     let numberOfDays = 80
     let actual = getStatesForDays numberOfDays initialStates |> getNumberOfFishes 
     let expected = 5934

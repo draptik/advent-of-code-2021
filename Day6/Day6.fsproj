@@ -12,7 +12,7 @@
         <Compile Include="Part1.fs" />
         <Compile Include="Part1Tests.fs" />
         <Compile Include="Program.fs" />
-        <Content Include="samples.txt" />
+        <Content Include="sample.txt" />
         <Content Include="input.txt" />
     </ItemGroup>
 
