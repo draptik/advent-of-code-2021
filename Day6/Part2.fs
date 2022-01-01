@@ -6,8 +6,6 @@ let newLanternFishState = 8
 let resetLanternFishState = 6
 let minimumLanternFishState = 0
 
-type NumberOfNewLanternFish = int
-
 type Action = Spawn | Noop
 
 let nextDay state : State * Action =
@@ -26,7 +24,7 @@ let isSpawn (stateAction: State * Action) : bool =
 
 (* TODO After profiling, this function takes up all the time 2/2 *)
 let getLength xs =
-    xs |> Seq.length
+    xs |> Seq.length |> int64
     
 (* TODO After profiling, this function takes up all the time 1/2 *)
 let getNumberOfSpawns stateAction =
@@ -34,9 +32,11 @@ let getNumberOfSpawns stateAction =
     |> Seq.filter isSpawn
     |> getLength
 
-let getNewFish numberOfSpawns newLanternFishState = Seq.replicate numberOfSpawns newLanternFishState
+let getNewFish (numberOfSpawns:int64) (newLanternFishState:State) =
+    [ for _ = 1L to numberOfSpawns do newLanternFishState ]
 
-let getStates stateAction newFish = Seq.concat [ (stateAction |> Seq.map fst) ; newFish ]     
+let getStates stateAction newFish =
+    Seq.concat [ (stateAction |> Seq.map fst) ; newFish ]     
 
 let getStatesForNextDay (states:States) : States =
     let stateAction = getStateAction states
