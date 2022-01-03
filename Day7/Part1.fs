@@ -3,7 +3,6 @@ module Day7.Part1
 type CrabPosition = int
 type TargetPosition = int
 type Fuel = int
-//type FuelPerTargetPosition = TargetPosition * Fuel
 
 let getTargetPositions (positions: CrabPosition list) : TargetPosition list =
     let min = positions |> List.min
@@ -14,12 +13,13 @@ let calcFuel (crabPosition:CrabPosition) (targetPosition:TargetPosition) : Fuel 
     (crabPosition - targetPosition) |> abs
 
 let calcFuelForCrabsAtPosition
+    (f: CrabPosition -> TargetPosition -> Fuel)
     (crabPositions:CrabPosition list)
     (targetPosition:TargetPosition)
     : TargetPosition * Fuel =
     let sumOfFuelUsage =
         crabPositions
-        |> List.map (fun crabPosition -> calcFuel crabPosition targetPosition)
+        |> List.map (fun crabPosition -> f crabPosition targetPosition)
         |> List.sum
     (targetPosition, sumOfFuelUsage)
 
@@ -34,15 +34,16 @@ let getFuelWithLeastFuelUsage (targetAndFuel:(TargetPosition * Fuel) list) : Fue
     |> snd
 
 let getTargetPositionsAndFuelSummaries
+    (f: CrabPosition -> TargetPosition -> Fuel)
     (targetPositions:TargetPosition list)
     (crabPositions:CrabPosition list)
     : (TargetPosition * Fuel) list =
-    targetPositions |> List.map (fun tp -> calcFuelForCrabsAtPosition crabPositions tp)
+    targetPositions |> List.map (fun tp -> calcFuelForCrabsAtPosition f crabPositions tp)
     
 let getPositionUsingLeastFuel (crabPositions:CrabPosition list) : TargetPosition =
     let targetPositions = getTargetPositions crabPositions
     let targetPositionsAndFuelSummaries =
-        getTargetPositionsAndFuelSummaries targetPositions crabPositions
+        getTargetPositionsAndFuelSummaries calcFuel targetPositions crabPositions
     let targetPositionWithLeastFuelUsage =
         getTargetPositionWithLeastFuelUsage targetPositionsAndFuelSummaries
     
@@ -51,5 +52,6 @@ let getPositionUsingLeastFuel (crabPositions:CrabPosition list) : TargetPosition
 let getFuelUsageAtBestPosition (crabPositions:CrabPosition list) : Fuel =
     let targetPositions = getTargetPositions crabPositions
     let targetPositionsAndFuelSummaries =
-        getTargetPositionsAndFuelSummaries targetPositions crabPositions
+        getTargetPositionsAndFuelSummaries calcFuel targetPositions crabPositions
     getFuelWithLeastFuelUsage targetPositionsAndFuelSummaries
+    

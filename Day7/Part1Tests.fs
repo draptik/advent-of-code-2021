@@ -24,7 +24,7 @@ let ``cheapest target position`` () =
 
 [<Fact>]
 let ``solve part 1`` () =
-    let actual = data |> List.sort |> getFuelUsageAtBestPosition
+    let actual = samples |> List.sort |> getFuelUsageAtBestPosition
     let expected = 37
     actual =! expected
     
@@ -62,7 +62,7 @@ let ``check getTargetPositionWithLeastFuelUsage`` () =
 let ``check getTargetPositionsAndFuelSummaries`` () =
     let targetPositions = [1;2;3]
     let crabPositions = [1;2;3;3;3]
-    let actual = getTargetPositionsAndFuelSummaries targetPositions crabPositions
+    let actual = getTargetPositionsAndFuelSummaries calcFuel targetPositions crabPositions
     let expected = [(1, 7); (2, 4); (3, 3)]
     actual =! expected
     
@@ -70,7 +70,7 @@ let ``check getTargetPositionsAndFuelSummaries`` () =
 let ``check getTargetPositionsAndFuelSummaries 2`` () =
     let crabPositions = samples
     let targetPositions = crabPositions |> getTargetPositions
-    let actual = getTargetPositionsAndFuelSummaries targetPositions crabPositions
+    let actual = getTargetPositionsAndFuelSummaries calcFuel targetPositions crabPositions
     let expected = [(0, 49); (1, 41); (2, 37); (3, 39); (4, 41); (5, 45); (6, 49); (7, 53); (8, 59);
          (9, 65); (10, 71); (11, 77); (12, 83); (13, 89); (14, 95); (15, 103); (16, 111)]
     actual =! expected
@@ -79,6 +79,6 @@ let ``check getTargetPositionsAndFuelSummaries 2`` () =
 let ``check calcFuelForCrabsAtPosition`` () =
     let targetPosition = 1
     let crabPositions = [0;1;2;2;1]
-    let actual = calcFuelForCrabsAtPosition crabPositions targetPosition
+    let actual = calcFuelForCrabsAtPosition calcFuel crabPositions targetPosition
     let expected = 1,3;
     actual =! expected
