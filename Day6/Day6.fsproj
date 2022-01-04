@@ -13,7 +13,6 @@
         <Compile Include="Part1Tests.fs" />
         <Compile Include="Part2.fs" />
         <Compile Include="Part2Tests.fs" />
-        <Compile Include="Scratch.fs" />
         <Compile Include="Program.fs" />
         <Content Include="sample.txt" />
         <Content Include="input.txt" />
